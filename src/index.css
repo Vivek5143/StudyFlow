@@ -1,0 +1,15 @@
+:root {
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  color: #607079;
+  background: #eef2e9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html { min-width: 320px; background: #eef2e9; }
+body { min-width: 320px; margin: 0; }
+#root { min-height: 100svh; }
+
+button, input, textarea { font-family: inherit; }
