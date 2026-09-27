@@ -42,7 +42,8 @@ class LLMService {
   }
 
   async generateStudySet(input, { signal } = {}) {
-    const prompt = this.buildStudySetPrompt(input);
+    const requestedCardCount = input.cardCount ?? 8;
+    const prompt = this.buildStudySetPrompt({ ...input, cardCount: requestedCardCount });
 
     const timeoutMs = parseInt(process.env.REQUEST_TIMEOUT || '30000', 10);
 
@@ -74,6 +75,9 @@ class LLMService {
 
         // IMPORTANT: validation must happen per-provider before returning.
         const validated = validateStudySet(parsed);
+        if (validated.cards.length !== requestedCardCount) {
+          throw new Error(`Invalid card count: expected ${requestedCardCount}, received ${validated.cards.length}`);
+        }
 
         console.log(`[LLM] ${provider.name} succeeded`);
         return validated;
@@ -100,6 +104,8 @@ class LLMService {
     if (lower.includes('timeout')) return 'timeout';
 
     if (name === 'ZodError') return 'invalid study-set structure';
+
+    if (lower.includes('invalid card count')) return 'invalid study-set structure';
 
     // parseLLMResponse messages include JSON
     if (lower.includes('json')) return 'malformed JSON';
@@ -144,7 +150,7 @@ class LLMService {
     }
   }
 
-  buildStudySetPrompt({ input }) {
+  buildStudySetPrompt({ input, cardCount = 8 }) {
     const content = String(input ?? '').trim();
 
     return `
@@ -154,7 +160,7 @@ INPUT:
 ${content}
 
 REQUIREMENTS:
-1. Generate 3-15 cards covering key concepts.
+1. Generate exactly ${cardCount} cards covering key concepts.
 2. Each card MUST have:
   - A concise question (question) that tests exactly one concept.
   - A short, memorable answer (answer), ideally 1-3 sentences and never more than 60 words.
@@ -187,6 +193,7 @@ IMPORTANT:
 - Return ONLY the JSON object. Do not include markdown or any additional text.
 - Ensure difficulty values are exactly "easy", "medium", or "hard".
 - Ensure card ids are unique.
+- Ensure the cards array contains exactly ${cardCount} cards.
 `.trim();
   }
 

@@ -26,12 +26,13 @@ function normalizeAxiosError(err) {
   return 'Failed to generate study materials';
 }
 
-export async function generateStudySet({ input }, { signal, timeoutMs = 30000 } = {}) {
+export async function generateStudySet({ input, cardCount }, { signal, timeoutMs = 30000 } = {}) {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/api/generate`,
       {
         input,
+        cardCount,
       },
       {
         headers: {

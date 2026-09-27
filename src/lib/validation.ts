@@ -6,6 +6,7 @@ export const TopicInputSchema = z.object({
     .min(3, 'Topic must be at least 3 characters')
     .max(200, 'Topic must not exceed 200 characters'),
   notes: z.string().max(1000, 'Notes must not exceed 1000 characters').optional(),
+  cardCount: z.number().int().min(3).max(15).default(8),
 });
 
 export type TopicInput = z.infer<typeof TopicInputSchema>;

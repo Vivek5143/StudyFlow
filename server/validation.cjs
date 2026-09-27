@@ -6,6 +6,7 @@ const { z } = require('zod');
 // { input: string }
 const GenerateRequestSchema = z.object({
   input: z.string().min(1, 'Input must be a non-empty string').max(4000, 'Input is too long'),
+  cardCount: z.number().int().min(3).max(15).default(8),
 });
 
 // Assignment data contract (LLM output)

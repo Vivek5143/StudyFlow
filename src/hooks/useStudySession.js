@@ -139,6 +139,7 @@ export function useStudySession() {
     try {
       const studySet = await generateStudySet({
         input: buildInputString({ topic: validatedInput.topic, notes: validatedInput.notes }),
+        cardCount: validatedInput.cardCount,
       });
 
       if (currentRequestIdRef.current !== requestId) return; // stale response protection

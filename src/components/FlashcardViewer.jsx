@@ -12,15 +12,6 @@ export default function FlashcardViewer({
   const card = flashcards[currentCardIndex];
   const lastIndex = flashcards.length - 1;
 
-  const difficultyTag = !card?.tags || card.tags.length === 0 ? null : card.tags[0];
-
-  const difficultyMeta = (() => {
-    if (!difficultyTag) return null;
-    if (difficultyTag === 'easy') return { icon: '🌿', label: 'Easy' };
-    if (difficultyTag === 'medium') return { icon: '⟡', label: 'Medium' };
-    return { icon: '🔥', label: 'Hard' };
-  })();
-
   const progressPct = flashcards.length > 0
     ? Math.round(((currentCardIndex + 1) / flashcards.length) * 100)
     : 0;
@@ -50,13 +41,6 @@ export default function FlashcardViewer({
   const canGoPrev = currentCardIndex > 0;
   const canGoNext = currentCardIndex < lastIndex && isShowingBack;
 
-  const difficultyPillClass = (() => {
-    if (!difficultyTag) return '';
-    if (difficultyTag === 'easy') return 'pill-difficulty pill-difficulty--easy';
-    if (difficultyTag === 'medium') return 'pill-difficulty pill-difficulty--medium';
-    return 'pill-difficulty pill-difficulty--hard';
-  })();
-
   return (
     <div className={`flashcard-viewer ${navigationDirection ? `flashcard-viewer--${navigationDirection}` : ''}`}>
       <div className="flashcard-header">
@@ -66,17 +50,6 @@ export default function FlashcardViewer({
           </div>
         </div>
 
-        <div className="flashcard-meta">
-          {difficultyTag && difficultyMeta && (
-            <span className={`pill ${difficultyPillClass} flashcard-difficulty-pill`}>
-              <span className="flashcard-difficulty-icon" aria-hidden="true">
-                {difficultyMeta.icon}
-              </span>
-              Difficulty: {difficultyMeta.label}
-            </span>
-          )}
-
-        </div>
       </div>
 
       <div
@@ -139,15 +112,6 @@ export default function FlashcardViewer({
         )}
       </div>
 
-      {card.tags && card.tags.length > 0 && (
-        <div className="flashcard-tags" aria-label="Card tags">
-          {card.tags.map((tag, idx) => (
-            <span key={idx} className="tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
