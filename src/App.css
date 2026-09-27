@@ -50,7 +50,7 @@ h1 em { color: var(--coral); font-style: normal; }
 /* Empty state */
 .empty-workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); align-items: center; gap: clamp(40px, 8vw, 110px); max-width: 1060px; min-height: calc(100svh - 145px); margin: 0 auto; }
 .empty-copy { padding: 26px 0; }
-.empty-copy h1 { max-width: 620px; margin-bottom: 25px; }
+.empty-copy h1 { max-width: 620px; margin-bottom: 25px; line-height: 1.16; }
 .empty-copy > p { max-width: 39ch; color: var(--ink-soft); font-size: 17px; line-height: 1.6; }
 .empty-signals { display: flex; flex-wrap: wrap; gap: 12px 22px; margin-top: 42px; color: var(--ink-soft); font-size: 12px; font-weight: 750; }
 .empty-signals span { display: inline-flex; align-items: center; gap: 8px; }
