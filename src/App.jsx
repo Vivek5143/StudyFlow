@@ -13,6 +13,7 @@ export default function App() {
     flashcards,
     currentCardIndex,
     difficultCardIds,
+    cardKnowledgeById,
     quizAttempt,
     activeQuizQuestions,
     quizResults,
@@ -23,6 +24,8 @@ export default function App() {
 
     onPrevCard,
     onNextCard,
+    onMarkKnown,
+    onMarkUnknown,
 
     goToQuiz,
     onQuizComplete,
@@ -118,6 +121,9 @@ export default function App() {
             currentCardIndex={currentCardIndex}
             onPrev={onPrevCard}
             onNext={onNextCard}
+            onMarkKnown={onMarkKnown}
+            onMarkUnknown={onMarkUnknown}
+            cardKnowledgeById={cardKnowledgeById}
             difficultCardIds={difficultCardIds}
           />
 

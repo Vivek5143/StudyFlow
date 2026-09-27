@@ -222,8 +222,9 @@ export function useStudySession() {
   };
 
   const markCard = (cardId, status) => {
+    if (cardKnowledgeById[cardId]) return;
+
     setCardKnowledgeById((prev) => {
-      if (prev[cardId]) return prev; // don't double-mark
       return { ...prev, [cardId]: status };
     });
 

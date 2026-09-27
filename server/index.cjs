@@ -60,16 +60,24 @@ app.post('/api/generate', async (req, res) => {
     // Validate request body
     const validatedInput = validateGenerateRequest(req.body);
 
-    // Set timeout for LLM request
+    const requestController = new AbortController();
+    let timeoutId;
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT);
+      timeoutId = setTimeout(() => {
+        requestController.abort();
+        reject(new Error('Request timeout'));
+      }, REQUEST_TIMEOUT);
     });
 
-    // Generate study set with timeout
-    const llmResponse = await Promise.race([
-      llmService.generateStudySet(validatedInput),
-      timeoutPromise
-    ]);
+    let llmResponse;
+    try {
+      llmResponse = await Promise.race([
+        llmService.generateStudySet(validatedInput, { signal: requestController.signal }),
+        timeoutPromise
+      ]);
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     // Validate LLM output (assignment contract)
     const validatedStudySet = validateStudySet(llmResponse);
@@ -89,7 +97,10 @@ app.post('/api/generate', async (req, res) => {
 
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`✗ Generation failed after ${duration}ms:`, error);
+    console.error(`✗ Generation failed after ${duration}ms`, {
+      requestId,
+      errorName: error?.name || 'Error'
+    });
 
     // Determine error type and status code
     let statusCode = 500;

@@ -70,7 +70,7 @@ study-flow/
 │   │   ├── FlashcardViewer.jsx
 │   │   └── QuizMode.jsx
 │   ├── hooks/          # Custom React hooks
-│   │   └── useStudyFlow.ts
+│   │   └── useStudySession.js
 │   ├── lib/            # Utilities and validation
 │   │   └── validation.ts
 │   └── types/          # TypeScript type definitions

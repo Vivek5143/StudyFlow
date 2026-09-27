@@ -33,7 +33,7 @@ class LLMService {
       {
         name: 'OpenRouter',
         key: process.env.OPENROUTER_API_KEY,
-        model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3-8b-instruct',
+        model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct',
         call: this.callOpenRouter,
       },
     ];
@@ -41,7 +41,7 @@ class LLMService {
     return order.filter((p) => Boolean(p.key));
   }
 
-  async generateStudySet(input) {
+  async generateStudySet(input, { signal } = {}) {
     const prompt = this.buildStudySetPrompt(input);
 
     const timeoutMs = parseInt(process.env.REQUEST_TIMEOUT || '30000', 10);
@@ -51,11 +51,23 @@ class LLMService {
 
     for (const provider of this.availableProviders) {
       console.log(`[LLM] Trying ${provider.name}`);
+      const providerController = new AbortController();
+      const abortProvider = () => providerController.abort();
+      if (signal?.aborted) {
+        providerController.abort();
+      } else {
+        signal?.addEventListener('abort', abortProvider, { once: true });
+      }
 
       try {
         const responseText = await this.withTimeout(
-          provider.call.call(this, prompt, { apiKey: provider.key, model: provider.model }),
-          timeoutMs
+          () => provider.call.call(this, prompt, {
+            apiKey: provider.key,
+            model: provider.model,
+            signal: providerController.signal,
+          }),
+          timeoutMs,
+          providerController
         );
 
         const parsed = this.parseLLMResponse(responseText);
@@ -70,6 +82,8 @@ class LLMService {
         lastFailureType = this.classifyProviderFailure(err);
         console.warn(`[LLM] ${provider.name} failed: ${lastFailureType}`);
         // Continue to next provider.
+      } finally {
+        signal?.removeEventListener('abort', abortProvider);
       }
     }
 
@@ -112,13 +126,22 @@ class LLMService {
     return msg ? 'provider failure' : 'provider failure';
   }
 
-  async withTimeout(promise, timeoutMs) {
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('timeout')), timeoutMs);
-      })
-    ]);
+  async withTimeout(operation, timeoutMs, controller) {
+    let timeoutId;
+
+    try {
+      return await Promise.race([
+        operation(),
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            controller.abort();
+            reject(new Error('timeout'));
+          }, timeoutMs);
+        })
+      ]);
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   buildStudySetPrompt({ input }) {
@@ -167,7 +190,7 @@ IMPORTANT:
 `.trim();
   }
 
-  async callGemini(prompt, { apiKey, model }) {
+  async callGemini(prompt, { apiKey, model, signal }) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
@@ -175,6 +198,7 @@ IMPORTANT:
       headers: {
         'Content-Type': 'application/json',
       },
+      signal,
       body: JSON.stringify({
         contents: [{
           parts: [{ text: prompt }]
@@ -207,7 +231,7 @@ IMPORTANT:
     return data.candidates[0].content.parts[0].text;
   }
 
-  async callGroq(prompt, { apiKey, model }) {
+  async callGroq(prompt, { apiKey, model, signal }) {
     const url = 'https://api.groq.com/openai/v1/chat/completions';
 
     const response = await fetch(url, {
@@ -216,6 +240,7 @@ IMPORTANT:
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
+      signal,
       body: JSON.stringify({
         model,
         messages: [{ role: 'user', content: prompt }],
@@ -244,7 +269,7 @@ IMPORTANT:
     return data.choices[0].message.content;
   }
 
-  async callOpenRouter(prompt, { apiKey, model }) {
+  async callOpenRouter(prompt, { apiKey, model, signal }) {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
 
     const response = await fetch(url, {
@@ -255,6 +280,7 @@ IMPORTANT:
         'HTTP-Referer': 'https://studyflow.app', // Optional, for analytics
         'X-Title': 'StudyFlow' // Optional, for analytics
       },
+      signal,
       body: JSON.stringify({
         model,
         messages: [{ role: 'user', content: prompt }],
