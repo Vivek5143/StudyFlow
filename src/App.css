@@ -127,7 +127,7 @@ h1 em { color: var(--coral); font-style: normal; }
 .pill { padding: 7px 11px; }
 .pill-danger { border-color: #efbbb0; background: var(--coral-wash); color: var(--coral-dark); }
 .flashcard-difficulty-icon { margin-right: 5px; }
-.flashcard { min-height: clamp(320px, 42vw, 430px); height: auto; border: 1px solid rgba(23, 37, 44, 0.12); border-radius: 28px; background: var(--ink); box-shadow: 0 35px 65px rgba(23, 37, 44, 0.2), 0 4px 0 rgba(23, 37, 44, 0.08); overflow: visible; perspective: 1400px; animation: card-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.flashcard { min-height: clamp(320px, 42vw, 430px); height: auto; border: 1px solid rgba(23, 37, 44, 0.12); border-radius: 28px; background: var(--ink); box-shadow: 0 35px 65px rgba(23, 37, 44, 0.2), 0 4px 0 rgba(23, 37, 44, 0.08); overflow: hidden; perspective: 1400px; animation: card-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .flashcard-face { display: block; width: 100%; height: auto; min-height: inherit; padding: 0; border: 0; color: inherit; text-align: left; background: transparent; cursor: pointer; }
 .flashcard-face:not(:disabled):hover { filter: brightness(1.04); }
 .flashcard-face:focus-visible { outline: 4px solid rgba(231, 93, 69, 0.75); outline-offset: -7px; border-radius: 28px; }
@@ -149,14 +149,6 @@ h1 em { color: var(--coral); font-style: normal; }
 .flashcard-progress-meter--footer { flex: 1 1 auto; max-width: none; min-width: 0; }
 .flashcard-footer .btn { min-height: 43px; padding-inline: 5px; border: 0; background: transparent; color: var(--ink-soft); }
 .flashcard-footer .btn:hover:not(:disabled) { color: var(--ink); transform: translateY(-1px); }
-.flashcard-marking { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.flashcard-marking-label { color: var(--ink-soft); font-size: 11px; font-weight: 750; }
-.flashcard-marking-actions { display: flex; gap: 7px; }
-.flashcard-mark-btn { min-height: 34px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 99px; background: var(--paper); color: var(--ink-soft); cursor: pointer; font-size: 11px; font-weight: 850; transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease; }
-.flashcard-mark-btn:hover:not(:disabled) { border-color: var(--coral); color: var(--ink); }
-.flashcard-mark-btn--known:hover:not(:disabled) { border-color: #8fc8ad; background: var(--mint); color: #216c50; }
-.flashcard-mark-btn--unknown:hover:not(:disabled) { border-color: #efbbb0; background: var(--coral-wash); color: var(--coral-dark); }
-.flashcard-mark-btn:disabled { cursor: not-allowed; opacity: 0.45; }
 .flashcard-tags { display: flex; flex-wrap: wrap; gap: 7px; }
 .tag { padding: 6px 10px; background: transparent; }
 .study-next-step { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
@@ -246,11 +238,6 @@ h1 em { color: var(--coral); font-style: normal; }
 .quiz-feedback-title { margin: 0; font-size: 18px; }
 .quiz-feedback-sub { max-width: 64ch; }
 
-@media (max-width: 560px) {
-  .flashcard-marking { align-items: flex-start; flex-direction: column; gap: 8px; }
-  .flashcard-marking-actions { width: 100%; }
-  .flashcard-mark-btn { flex: 1; }
-}
 
 @media (max-width: 560px) {
   .quiz-workspace { padding-top: 45px; }

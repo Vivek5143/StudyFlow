@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { TopicInputSchema } from '../lib/validation';
 import { generateStudySet } from '../lib/api';
 
@@ -103,28 +103,12 @@ export function useStudySession() {
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
-  // Card knowledge tracking: cardId -> 'gotIt' | 'didntKnow'
-  const [cardKnowledgeById, setCardKnowledgeById] = useState({});
-
   const [quizAttempt, setQuizAttempt] = useState(0); // 0 initial, 1+ retries
   const [quizResults, setQuizResults] = useState(null); // { scorePercent, incorrectQuestionIds, incorrectQuestions }
 
   const [lastInput, setLastInput] = useState(null);
 
   const currentRequestIdRef = useRef(null);
-
-  const difficultCardIds = useMemo(() => {
-    const ids = [];
-    for (const [cardId, status] of Object.entries(cardKnowledgeById)) {
-      if (status === 'didntKnow') ids.push(cardId);
-    }
-    return ids;
-  }, [cardKnowledgeById]);
-
-  const flashcardsCompleted = useMemo(() => {
-    if (flashcards.length === 0) return false;
-    return Object.keys(cardKnowledgeById).length >= flashcards.length;
-  }, [cardKnowledgeById, flashcards.length]);
 
   const buildInputString = ({ topic, notes }) => {
     const trimmedNotes = (notes ?? '').trim();
@@ -149,7 +133,6 @@ export function useStudySession() {
     setQuizQuestions([]);
     setActiveQuizQuestions([]);
     setCurrentCardIndex(0);
-    setCardKnowledgeById({});
     setQuizAttempt(0);
     setQuizResults(null);
 
@@ -168,7 +151,6 @@ export function useStudySession() {
       setQuizQuestions(nextQuizQuestions);
       setActiveQuizQuestions(nextQuizQuestions);
       setCurrentCardIndex(0);
-      setCardKnowledgeById({});
       setQuizAttempt(0);
       setQuizResults(null);
       setMode('flashcards');
@@ -199,8 +181,6 @@ export function useStudySession() {
     setQuizQuestions([]);
     setActiveQuizQuestions([]);
     setCurrentCardIndex(0);
-    setCardKnowledgeById({});
-
     setQuizAttempt(0);
     setQuizResults(null);
     setLastInput(null);
@@ -220,20 +200,6 @@ export function useStudySession() {
   const handleNextCard = () => {
     setCurrentCardIndex((idx) => Math.min(flashcards.length - 1, idx + 1));
   };
-
-  const markCard = (cardId, status) => {
-    if (cardKnowledgeById[cardId]) return;
-
-    setCardKnowledgeById((prev) => {
-      return { ...prev, [cardId]: status };
-    });
-
-    // Advance to the next card (UI will disable actions for already marked cards).
-    setCurrentCardIndex((idx) => Math.min(flashcards.length - 1, idx + 1));
-  };
-
-  const onMarkKnown = (cardId) => markCard(cardId, 'gotIt');
-  const onMarkUnknown = (cardId) => markCard(cardId, 'didntKnow');
 
   const onQuizComplete = ({ scorePercent, incorrectQuestionIds }) => {
     const incorrectQuestions = activeQuizQuestions.filter((q) => incorrectQuestionIds.includes(q.id));
@@ -272,10 +238,6 @@ export function useStudySession() {
 
     flashcards,
     currentCardIndex,
-    difficultCardIds: new Set(difficultCardIds),
-
-    cardKnowledgeById,
-    flashcardsCompleted,
 
     quizAttempt,
     activeQuizQuestions,
@@ -287,8 +249,6 @@ export function useStudySession() {
 
     onPrevCard: handlePrevCard,
     onNextCard: handleNextCard,
-    onMarkKnown,
-    onMarkUnknown,
 
     goToQuiz,
     onQuizComplete,

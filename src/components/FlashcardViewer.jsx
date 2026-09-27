@@ -5,17 +5,11 @@ export default function FlashcardViewer({
   currentCardIndex,
   onPrev,
   onNext,
-  onMarkKnown,
-  onMarkUnknown,
-  cardKnowledgeById,
-  difficultCardIds,
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [navigationDirection, setNavigationDirection] = useState(null);
 
   const card = flashcards[currentCardIndex];
-  const isDifficult = difficultCardIds?.has(card.id);
-  const isMarked = Boolean(cardKnowledgeById?.[card.id]);
   const lastIndex = flashcards.length - 1;
 
   const difficultyTag = !card?.tags || card.tags.length === 0 ? null : card.tags[0];
@@ -55,7 +49,6 @@ export default function FlashcardViewer({
 
   const canGoPrev = currentCardIndex > 0;
   const canGoNext = currentCardIndex < lastIndex && isShowingBack;
-  const canMark = isShowingBack && !isMarked;
 
   const difficultyPillClass = (() => {
     if (!difficultyTag) return '';
@@ -83,7 +76,6 @@ export default function FlashcardViewer({
             </span>
           )}
 
-          {isDifficult && <span className="pill pill-danger">Needs extra practice</span>}
         </div>
       </div>
 
@@ -145,28 +137,6 @@ export default function FlashcardViewer({
             Next →
           </button>
         )}
-      </div>
-
-      <div className="flashcard-marking" aria-label="Mark your answer">
-        <span className="flashcard-marking-label">How did that feel?</span>
-        <div className="flashcard-marking-actions">
-          <button
-            type="button"
-            className="flashcard-mark-btn flashcard-mark-btn--known"
-            onClick={() => onMarkKnown(card.id)}
-            disabled={!canMark}
-          >
-            Got it
-          </button>
-          <button
-            type="button"
-            className="flashcard-mark-btn flashcard-mark-btn--unknown"
-            onClick={() => onMarkUnknown(card.id)}
-            disabled={!canMark}
-          >
-            Didn't know
-          </button>
-        </div>
       </div>
 
       {card.tags && card.tags.length > 0 && (
